@@ -1,0 +1,82 @@
+import customtkinter as ctk
+from tkinter import messagebox, END, Listbox
+
+class Library:
+    def __init__(self):
+        self.books = []
+
+    def add_book(self, book_title):
+        if book_title:
+            self.books.append(book_title)
+            return True
+        return False
+
+    def remove_book(self, book_title):
+        if book_title in self.books:
+            self.books.remove(book_title)
+            return True
+        return False
+
+    def list_books(self):
+        return self.books
+
+class LibraryGUI:
+    def __init__(self, root, library):
+        self.root = root
+        self.library = library
+        self.root.title("Biblioteka")
+
+        ctk.set_appearance_mode("dark")  
+        ctk.set_default_color_theme("dark-blue")  
+
+        self.frame = ctk.CTkFrame(root)
+        self.frame.pack(pady=20, padx=20, fill="both", expand=True)
+
+        self.label = ctk.CTkLabel(self.frame, text="Naziv knjige:")
+        self.label.pack(pady=5)
+
+        self.entry = ctk.CTkEntry(self.frame)
+        self.entry.pack(pady=5)
+
+        self.add_button = ctk.CTkButton(self.frame, text="Dodaj knjigu", command=self.add_book)
+        self.add_button.pack(pady=5)
+
+        self.remove_button = ctk.CTkButton(self.frame, text="Obriši knjigu", command=self.remove_book)
+        self.remove_button.pack(pady=5)
+
+        self.list_button = ctk.CTkButton(self.frame, text="Prikaz knjiga", command=self.list_books)
+        self.list_button.pack(pady=5)
+
+        self.books_listbox = Listbox(self.frame, bg="black", fg="white")
+        self.books_listbox.pack(pady=5, fill="both", expand=True)
+
+    def add_book(self):
+        book_title = self.entry.get()
+        if self.library.add_book(book_title):
+            messagebox.showinfo("Uspeh", f'Knjiga "{book_title}" je dodata.')
+            self.entry.delete(0, END)
+            self.update_listbox()
+        else:
+            messagebox.showwarning("Greška", "Morate uneti naziv knjige.")
+
+    def remove_book(self):
+        selected_book = self.books_listbox.get(self.books_listbox.curselection())
+        if self.library.remove_book(selected_book):
+            messagebox.showinfo("Uspjesno!", f'Knjiga "{selected_book}" je uklonjena.')
+            self.update_listbox()
+        else:
+            messagebox.showwarning("Greška!", "Knjiga nije pronađena.")
+
+    def list_books(self):
+        self.update_listbox()
+
+    def update_listbox(self):
+        self.books_listbox.delete(0, END)
+        for book in self.library.list_books():
+            self.books_listbox.insert(END, book)
+
+if __name__ == "__main__":
+    root = ctk.CTk()
+    library = Library()
+    gui = LibraryGUI(root, library)
+    root.mainloop()
